@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FlomtCalibration.App.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="FlomtCalibration.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="FlomtCalibration.App">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+	<Grid ColumnDefinitions="auto,*">
+		<ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Disabled" Margin="10">
+			<StackPanel MinWidth="170" MaxWidth="170" Margin="0 0 20 0" Spacing="10">
+				<StackPanel Spacing="5">
+					<TextBlock Text="Slave Id" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<TextBox Watermark="Slave Id" Text="{CompiledBinding SlaveId}" />
+				</StackPanel>
+				<StackPanel Spacing="5">
+					<TextBlock Text="Serial Port" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<ComboBox ItemsSource="{CompiledBinding SerialPortCollection}" SelectedItem="{CompiledBinding SerialPort}" HorizontalAlignment="Stretch" />
+				</StackPanel>
+				<Button Content="Refresh Ports" Command="{CompiledBinding UpdateSerialPorts}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+				
+				<StackPanel Spacing="5">
+					<TextBlock Text="Baud Rate" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<ComboBox ItemsSource="{CompiledBinding BaudRateCollection}" SelectedItem="{CompiledBinding BaudRate}" HorizontalAlignment="Stretch" />
+				</StackPanel>
+				<StackPanel Spacing="5">
+					<TextBlock Text="Parity" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<ComboBox ItemsSource="{CompiledBinding ParityCollection}" SelectedItem="{CompiledBinding Parity}" HorizontalAlignment="Stretch" />
+				</StackPanel>
+				<StackPanel Spacing="5">
+					<TextBlock Text="Data Bits" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<TextBox Watermark="DataBits" Text="{CompiledBinding DataBits}" />
+				</StackPanel>
+				<StackPanel Spacing="5">
+					<TextBlock Text="StopBits" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<ComboBox ItemsSource="{CompiledBinding StopBitsCollection}" SelectedItem="{CompiledBinding StopBits}" HorizontalAlignment="Stretch" />
+				</StackPanel>
+				
+				<StackPanel Spacing="5">
+					<TextBlock Text="S, mm" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<TextBox Watermark="Diameter" Text="{CompiledBinding Diameter}" />
+				</StackPanel>
+				<StackPanel Spacing="5">
+					<TextBlock Grid.Column="0" Text="P, bar" VerticalAlignment="Center" Margin="0 0 5 0" FontWeight="SemiBold" />
+					<TextBox Grid.Column="1" Watermark="Atm. Pressure" Text="{CompiledBinding Pressure}" />
+				</StackPanel>
+
+				<Button Content="Load calibration file" Click="OpenFileButton_Clicked" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+				<Button Content="Load calibration data" Command="{CompiledBinding Calculate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+				<Button Content="Clear results" Command="{CompiledBinding ClearResults}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+				<Button Content="Export results" Click="SaveFileButton_Clicked" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+			</StackPanel>
+		</ScrollViewer>
+
+		<TabControl Grid.Column="1" Margin="0">
+			<TabItem Header="Calibration">
+				<DataGrid x:Name="CalibrationDataGrid"
+					AutoGenerateColumns="false" IsReadOnly="True" CanUserResizeColumns="True"
+					GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray" ColumnWidth="*">
+				</DataGrid>
+			</TabItem>
+			<TabItem Header="Results">
+				<DataGrid ItemsSource="{CompiledBinding CalculationResults}"
+					AutoGenerateColumns="false" IsReadOnly="True" CanUserResizeColumns="True"
+					GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray" ColumnWidth="*">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="DateTime"	Binding="{CompiledBinding DateTime}" Width="auto" />
+						<DataGridTextColumn Header="Tc (s)"		Binding="{CompiledBinding Tc, StringFormat={}{0:0.000}}"  />
+						<DataGridTextColumn Header="fc (Hz)"	Binding="{CompiledBinding fc, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="fmin (Hz)"	Binding="{CompiledBinding fmin, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="fmax (Hz)"	Binding="{CompiledBinding fmax, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="pc (bar)"	Binding="{CompiledBinding pc, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="tc (oC)"	Binding="{CompiledBinding tc, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="p2 (bar)"	Binding="{CompiledBinding p2, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="t2 (oC)"	Binding="{CompiledBinding t2, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="Vc (m3)"	Binding="{CompiledBinding Vc, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="Qc (m3/h)"	Binding="{CompiledBinding Qc, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="Uc (m/s)"	Binding="{CompiledBinding Uc, StringFormat={}{0:0.000}}" />
+					</DataGrid.Columns>
+				</DataGrid>
+			</TabItem>
+		</TabControl>
+	</Grid>
+</Window>

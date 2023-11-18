@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlomtCalibration.App", "FlomtCalibration.App\FlomtCalibration.App.csproj", "{B675E739-3CB0-482D-9657-28629BCDAFDE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlomtCalibration.Modbus", "FlomtCalibration.Modbus\FlomtCalibration.Modbus.csproj", "{4414C0F0-726A-486C-92E8-7B1AC1AABDFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B675E739-3CB0-482D-9657-28629BCDAFDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B675E739-3CB0-482D-9657-28629BCDAFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B675E739-3CB0-482D-9657-28629BCDAFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B675E739-3CB0-482D-9657-28629BCDAFDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4414C0F0-726A-486C-92E8-7B1AC1AABDFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4414C0F0-726A-486C-92E8-7B1AC1AABDFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4414C0F0-726A-486C-92E8-7B1AC1AABDFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4414C0F0-726A-486C-92E8-7B1AC1AABDFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE487024-FAB8-4A14-80CA-0B898D5BFEF6}
+	EndGlobalSection
+EndGlobal
