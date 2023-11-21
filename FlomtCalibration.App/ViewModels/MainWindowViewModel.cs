@@ -7,6 +7,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -242,9 +243,9 @@ namespace FlomtCalibration.App.ViewModels
                 var values = line.Split(',');
                 for (var i = 0; i < values.Length / 3; i++)
                 {
-                    var p = double.Parse(values[i * 3].Replace('.', ','));
-                    var t = double.Parse(values[i * 3 + 1].Replace('.', ','));
-                    var v = double.Parse(values[i * 3 + 2].Replace('.', ','));
+                    var p = double.Parse(values[i * 3], NumberStyles.Any, CultureInfo.InvariantCulture);
+                    var t = double.Parse(values[i * 3 + 1], NumberStyles.Any, CultureInfo.InvariantCulture);
+                    var v = double.Parse(values[i * 3 + 2], NumberStyles.Any, CultureInfo.InvariantCulture);
                     if (Tables.TryGetValue(t, out var table))
                     {
                         table[p] = v;
