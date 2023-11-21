@@ -87,9 +87,7 @@ namespace FlomtCalibration.App.ViewModels
         #endregion
 
         // <temperature, (pressure, volume)>
-        private Dictionary<double, Dictionary<double, double>> _tables = new();
-        [JsonIgnore]
-        public Dictionary<double, Dictionary<double, double>> Tables => _tables;
+        public Dictionary<double, Dictionary<double, double>> Tables = new();
 
         public ObservableCollection<CalculationResult> CalculationResults { get; set; } = new();
 
@@ -147,24 +145,59 @@ namespace FlomtCalibration.App.ViewModels
                     var Tc = BitConverter.ToUInt32(bytes.AsSpan()[0..4]) * 0.01d;
                     var com_fcPow = -BitConverter.ToUInt16(bytes.AsSpan()[14..16]);
                     var com_fc = Math.Pow(10, com_fcPow);
-                    var fc = BitConverter.ToUInt16(bytes.AsSpan()[4..6]) * com_fc;
-                    var fmin = BitConverter.ToUInt16(bytes.AsSpan()[6..8]) * com_fc;
-                    var fmax = BitConverter.ToUInt16(bytes.AsSpan()[8..10]) * com_fc;
-                    var pc = BitConverter.ToUInt16(bytes.AsSpan()[10..12]) * 0.001d;
-                    var tc = BitConverter.ToUInt16(bytes.AsSpan()[12..14]) * 0.01d;
-                    var p2 = BitConverter.ToUInt16(bytes.AsSpan()[16..18]) * 0.001d;
-                    var t2 = BitConverter.ToUInt16(bytes.AsSpan()[18..20]) * 0.01d;
+                    var fc = BitConverter.ToInt16(bytes.AsSpan()[4..6]) * com_fc;
+                    var fmin = BitConverter.ToInt16(bytes.AsSpan()[6..8]) * com_fc;
+                    var fmax = BitConverter.ToInt16(bytes.AsSpan()[8..10]) * com_fc;
+                    var pc = BitConverter.ToInt16(bytes.AsSpan()[10..12]) * 0.001d;
+                    var tc = BitConverter.ToInt16(bytes.AsSpan()[12..14]) * 0.01d;
+                    var p2 = BitConverter.ToInt16(bytes.AsSpan()[16..18]) * 0.001d;
+                    var t2 = BitConverter.ToInt16(bytes.AsSpan()[18..20]) * 0.01d;
+
+                    void GetResult(double _Ve, double _Vc, double _Qc, double _Uc) => CalculationResults.Add(new()
+                    {
+                        DateTime = DateTime.Now,
+                        Tc = Tc,
+                        fc = fc,
+                        fmin = fmin,
+                        fmax = fmax,
+                        pc = pc,
+                        tc = tc,
+                        p2 = p2,
+                        t2 = t2,
+                        Ve = _Ve,
+                        Vc = _Vc,
+                        Qc = _Qc,
+                        Uc = _Uc,
+                    });
+
+                    void GetInvalidResult() => GetResult(double.NaN, double.NaN, double.NaN, double.NaN);
 
                     // get Ve using linear regression
-                    var (tLess, tMore) = _tables.Keys.Between(t2);
+                    var (tLess, tMore) = Tables.Keys.Between(t2);
+
+                    if (!Tables.TryGetValue(tLess, out _) || !Tables.TryGetValue(tMore, out _))
+                    {
+                        GetInvalidResult();
+                        return;
+                    }
 
                     // calculate pressure for smaller temperature
-                    var (pLess, pMore) = _tables[tLess].Keys.Between(p2);
-                    var veLess = _tables[tLess][pLess] + (_tables[tLess][pMore] - _tables[tLess][pLess]) * (p2 - pLess) / (pMore - pLess);
+                    var (pLess, pMore) = Tables[tLess].Keys.Between(p2);
+                    if (!Tables[tLess].TryGetValue(pLess, out _) || !Tables[tLess].TryGetValue(pMore, out _))
+                    {
+                        GetInvalidResult();
+                        return;
+                    }
+                    var veLess = Tables[tLess][pLess] + (Tables[tLess][pMore] - Tables[tLess][pLess]) * (p2 - pLess) / (pMore - pLess);
 
                     // calculate pressure for bigger temperature
-                    (pLess, pMore) = _tables[tMore].Keys.Between(p2);
-                    var veMore = _tables[tMore][pLess] + (_tables[tMore][pMore] - _tables[tMore][pLess]) * (p2 - pLess) / (pMore - pLess);
+                    (pLess, pMore) = Tables[tMore].Keys.Between(p2);
+                    if (!Tables[tMore].TryGetValue(pLess, out _) || !Tables[tMore].TryGetValue(pMore, out _))
+                    {
+                        GetInvalidResult();
+                        return;
+                    }
+                    var veMore = Tables[tMore][pLess] + (Tables[tMore][pMore] - Tables[tMore][pLess]) * (p2 - pLess) / (pMore - pLess);
 
                     // calculate resulting standart volume from volumes of 2 temperatures
                     var Ve = veLess + (veMore - veLess) * (t2 - tLess) / (tMore - tLess);
@@ -182,22 +215,7 @@ namespace FlomtCalibration.App.ViewModels
                     var Uc = (Vc * 1_000_000) / (tc * s);
                     var Qc = Vc * 3600 / tc;
 
-                    // todo: add results to table and export
-                    CalculationResults.Add(new()
-                    {
-                        DateTime = DateTime.Now,
-                        Tc = Tc,
-                        fc = fc,
-                        fmin = fmin,
-                        fmax = fmax,
-                        pc = pc,
-                        tc = tc,
-                        p2 = p2,
-                        t2 = t2,
-                        Vc = Vc,
-                        Qc = Qc,
-                        Uc = Uc,
-                    });
+                    GetResult(Ve, Vc, Qc, Uc);
                 }
             }
             catch (Exception)
@@ -213,7 +231,7 @@ namespace FlomtCalibration.App.ViewModels
 
         public async Task UpdateTablesFromFile(IStorageFile file)
         {
-            _tables.Clear();
+            Tables.Clear();
             CalculationResults.Clear();
             await using var stream = await file.OpenReadAsync();
             using var streamReader = new StreamReader(stream);
@@ -224,17 +242,17 @@ namespace FlomtCalibration.App.ViewModels
                 var values = line.Split(',');
                 for (var i = 0; i < values.Length / 3; i++)
                 {
-                    var p = double.Parse(values[i * 3]);
-                    var t = double.Parse(values[i * 3 + 1]);
-                    var v = double.Parse(values[i * 3 + 2]);
-                    if (_tables.TryGetValue(t, out var table))
+                    var p = double.Parse(values[i * 3].Replace('.', ','));
+                    var t = double.Parse(values[i * 3 + 1].Replace('.', ','));
+                    var v = double.Parse(values[i * 3 + 2].Replace('.', ','));
+                    if (Tables.TryGetValue(t, out var table))
                     {
                         table[p] = v;
                     }
                     else
                     {
                         var _table = new Dictionary<double, double> { { p, v } };
-                        _tables.Add(t, _table);
+                        Tables.Add(t, _table);
                     }
                 }
             }
@@ -249,7 +267,11 @@ namespace FlomtCalibration.App.ViewModels
                 using var streamWriter = new StreamWriter(stream);
 
                 var propertyInfos = typeof(CalculationResult).GetProperties();
-                var titles = propertyInfos.Select(x => $"{x.Name} ({x.GetCustomAttribute<UnitAttribute>()?.Unit})");
+                var titles = propertyInfos.Select(x =>
+                {
+                    var unit = x.GetCustomAttribute<UnitAttribute>()?.Unit;
+                    return string.IsNullOrEmpty(unit) ? x.Name : x.Name + $"({unit})";
+                });
                 await streamWriter.WriteLineAsync(string.Join(',', titles));
 
                 foreach (var calculationResult in CalculationResults)

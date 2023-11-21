@@ -6,6 +6,7 @@ using FlomtCalibration.App.Views;
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace FlomtCalibration.App
 {
@@ -39,7 +40,7 @@ namespace FlomtCalibration.App
             if (File.Exists(file))
             {
                 var json = File.ReadAllText(file);
-                var vm = JsonSerializer.Deserialize<MainWindowViewModel>(json);
+                var vm = JsonSerializer.Deserialize<MainWindowViewModel>(json, new JsonSerializerOptions { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals });
                 if (vm != null && sender is MainWindow mainWindow && mainWindow.DataContext is MainWindowViewModel)
                 {
                     mainWindow.DataContext = vm;
@@ -52,7 +53,7 @@ namespace FlomtCalibration.App
             var file = Environment.CurrentDirectory + "\\app_data.txt";
             if (sender is MainWindow mainWindow && mainWindow.DataContext is MainWindowViewModel vm)
             {
-                var json = JsonSerializer.Serialize(vm);
+                var json = JsonSerializer.Serialize(vm, new JsonSerializerOptions { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals });
                 File.WriteAllText(file, json);
             }
         }

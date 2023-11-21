@@ -35,47 +35,9 @@ namespace FlomtCalibration.App.Views
                     if (DataContext is MainWindowViewModel vm)
                     {
                         await vm.UpdateTablesFromFile(files[0]);
-
-                        CalibrationDataGrid.Columns.Clear();
-                        var tempCount = vm.Tables.Count;
-                        for (var i = 0; i < tempCount; i++)
-                        {
-                            CalibrationDataGrid.Columns.Add(new DataGridTextColumn
-                            {
-                                Header = "p (bar)",
-                                Binding = new Binding($"[{i * 3}]")
-                            });
-                            CalibrationDataGrid.Columns.Add(new DataGridTextColumn
-                            {
-                                Header = "t (oC)",
-                                Binding = new Binding($"[{i * 3 + 1}]")
-                            });
-                            CalibrationDataGrid.Columns.Add(new DataGridTextColumn
-                            {
-                                Header = "V (m3)",
-                                Binding = new Binding($"[{i * 3 + 2}]")
-                            });
-                        }
-                        var rows = new ObservableCollection<string[]>();
-
-                        foreach (var (tindex, (t, pv)) in vm.Tables.Select((value, index) => (index, value)))
-                        {
-                            foreach (var (index, (p, v)) in pv.Select((value, index) => (index, value)))
-                            {
-                                var row = rows.ElementAtOrDefault(index);
-                                if (row == null)
-                                {
-                                    row = new string[tempCount * 3];
-                                    rows.Add(row);
-                                }
-                                row[tindex * 3] = p.ToString("0.000");
-                                row[tindex * 3 + 1] = t.ToString("0.000");
-                                row[tindex * 3 + 2] = v.ToString("0.000");
-                            }
-                        }
-
-                        CalibrationDataGrid.ItemsSource = rows;
                     }
+
+                    CreateCalibrationTable();
                 }
             }
             catch (Exception)
@@ -98,6 +60,52 @@ namespace FlomtCalibration.App.Views
             if (file is not null)
             {
                 (DataContext as MainWindowViewModel)?.SaveResultsToFile(file);
+            }
+        }
+
+        private void CreateCalibrationTable()
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                CalibrationDataGrid.Columns.Clear();
+                var tempCount = vm.Tables.Count;
+                for (var i = 0; i < tempCount; i++)
+                {
+                    CalibrationDataGrid.Columns.Add(new DataGridTextColumn
+                    {
+                        Header = "p (bar)",
+                        Binding = new Binding($"[{i * 3}]")
+                    });
+                    CalibrationDataGrid.Columns.Add(new DataGridTextColumn
+                    {
+                        Header = "t (oC)",
+                        Binding = new Binding($"[{i * 3 + 1}]")
+                    });
+                    CalibrationDataGrid.Columns.Add(new DataGridTextColumn
+                    {
+                        Header = "V (m3)",
+                        Binding = new Binding($"[{i * 3 + 2}]")
+                    });
+                }
+                var rows = new ObservableCollection<string[]>();
+
+                foreach (var (tindex, (t, pv)) in vm.Tables.Select((value, index) => (index, value)))
+                {
+                    foreach (var (index, (p, v)) in pv.Select((value, index) => (index, value)))
+                    {
+                        var row = rows.ElementAtOrDefault(index);
+                        if (row == null)
+                        {
+                            row = new string[tempCount * 3];
+                            rows.Add(row);
+                        }
+                        row[tindex * 3] = p.ToString("0.000");
+                        row[tindex * 3 + 1] = t.ToString("0.000");
+                        row[tindex * 3 + 2] = v.ToString("0.000");
+                    }
+                }
+
+                CalibrationDataGrid.ItemsSource = rows;
             }
         }
     }

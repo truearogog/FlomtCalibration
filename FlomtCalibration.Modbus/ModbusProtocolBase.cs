@@ -23,25 +23,29 @@
         {
             return await Task.Run(() =>
             {
-                Open();
-                var message = new byte[8];
-                BuildMessage(slaveId, 3, start, count, ref message);
-                Send(message);
-                var bytes = Receive(count);
-                if (bytes is null)
+                var result = (byte[]?)null;
+                try
                 {
-                    return null;
+                    Open();
+                    var message = new byte[8];
+                    BuildMessage(slaveId, 3, start, count, ref message);
+                    Send(message);
+                    var bytes = Receive(count);
+                    if (bytes is not null && CheckResponse(bytes))
+                    {
+                        result = bytes[3..^2];
+                    }
                 }
-                Close();
-                if (CheckResponse(bytes))
+                catch (Exception)
                 {
-                    return bytes[3..^2];
                 }
-                else
+                finally
                 {
-                    return null;
+                    Close();
                 }
-            });
+
+                return result;
+            }).ConfigureAwait(false);
         }
 
         private static void BuildMessage(byte slaveId, byte type, ushort start, ushort count, ref byte[] message)

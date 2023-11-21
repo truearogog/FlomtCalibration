@@ -80,6 +80,7 @@
 						<DataGridTextColumn Header="tc (oC)"	Binding="{CompiledBinding tc, StringFormat={}{0:0.000}}" />
 						<DataGridTextColumn Header="p2 (bar)"	Binding="{CompiledBinding p2, StringFormat={}{0:0.000}}" />
 						<DataGridTextColumn Header="t2 (oC)"	Binding="{CompiledBinding t2, StringFormat={}{0:0.000}}" />
+						<DataGridTextColumn Header="Ve (m3)"	Binding="{CompiledBinding Ve, StringFormat={}{0:0.000}}" />
 						<DataGridTextColumn Header="Vc (m3)"	Binding="{CompiledBinding Vc, StringFormat={}{0:0.000}}" />
 						<DataGridTextColumn Header="Qc (m3/h)"	Binding="{CompiledBinding Qc, StringFormat={}{0:0.000}}" />
 						<DataGridTextColumn Header="Uc (m/s)"	Binding="{CompiledBinding Uc, StringFormat={}{0:0.000}}" />

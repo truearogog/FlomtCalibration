@@ -22,6 +22,8 @@ namespace FlomtCalibration.App.Models
         [Unit("oC")]
         public double t2 { get; init; }
         [Unit("m3")]
+        public double Ve { get; init; }
+        [Unit("m3")]
         public double Vc { get; init; }
         [Unit("m3/h")]
         public double Qc { get; init; }
